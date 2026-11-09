@@ -1,0 +1,14 @@
+unnamed package
+demo
+domain
+exceptions
+repository
+repository.criteria
+repository.database
+repository.factory
+repository.file
+repository.memory
+service
+ui
+utils
+validation

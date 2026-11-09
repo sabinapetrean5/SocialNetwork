@@ -1,0 +1,4 @@
+1;Ana;Pop
+abc;Nume;Invalid
+2;DoarDouaCampuri
+3;Ioana;Marin
