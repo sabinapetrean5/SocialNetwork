@@ -177,18 +177,20 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>>
         return result;
     }
 
+
     @Override
-    public void delete(ID id) {
+    public E delete(ID id) {
         if (id == null) {
             throw new IllegalArgumentException("ID cannot be null.");
         }
 
-        boolean existed = entities.containsKey(id);
+        E deletedEntity = super.delete(id);
 
-        super.delete(id);
-
-        if (existed) {
+        if (deletedEntity != null) {
             writeAllToFile();
         }
+
+        return deletedEntity;
     }
+
 }

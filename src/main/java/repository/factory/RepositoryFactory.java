@@ -124,15 +124,18 @@ public class RepositoryFactory {
                 )
         );
 
+
         friendshipCreators.put(
                 RepositoryType.DATABASE,
                 validator -> new FriendshipDbRepository(
                         validator,
                         requiredProperty("db.url"),
                         requiredProperty("db.user"),
-                        requiredProperty("db.password")
+                        requiredProperty("db.password"),
+                        createdUserRepository
                 )
         );
+
     }
 
     /**

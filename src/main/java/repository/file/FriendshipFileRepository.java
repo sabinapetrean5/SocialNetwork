@@ -219,20 +219,22 @@ public class FriendshipFileRepository
         );
     }
 
+
     /**
      * Deletes a friendship using normalized user identifiers.
      *
      * @param id the friendship identifier
+     * @return the deleted friendship, or null if it does not exist
      * @throws IllegalArgumentException if the identifier or either
      *         user identifier is null
      */
     @Override
-    public void delete(Tuple<Long, Long> id) {
+    public Friendship delete(Tuple<Long, Long> id) {
         if (id == null) {
             throw new IllegalArgumentException("ID cannot be null.");
         }
 
-        super.delete(normalize(id.getT1(), id.getT2()));
+        return super.delete(normalize(id.getT1(), id.getT2()));
     }
 
     /**

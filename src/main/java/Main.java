@@ -13,6 +13,7 @@ import validation.FriendshipValidator;
 import validation.UserValidator;
 import validation.ValidationException;
 import validation.Validator;
+import exceptions.RepositoryException;
 
 import java.util.stream.IntStream;
 
@@ -31,57 +32,65 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        UserValidator userValidator = new UserValidator();
+//        try(java.sql.Connection connection = database.DatabaseConnection.getConnection()){
+//            System.out.println("Success PostgreSQL connection");
+//        }catch(java.sql.SQLException e){
+//            System.out.println("Connection error"+ e.getMessage());
+//        }
+        try {
+            UserValidator userValidator = new UserValidator();
 
-        Validator<User> nameNoDigitsValidator = entity -> {
-            String firstName = entity.getFirstName();
-            String lastName = entity.getLastName();
+            Validator<User> nameNoDigitsValidator = entity -> {
+                String firstName = entity.getFirstName();
+                String lastName = entity.getLastName();
 
-            IntStream firstNameDigits = firstName.chars();
-            IntStream lastNameDigits = lastName.chars();
+                IntStream firstNameDigits = firstName.chars();
+                IntStream lastNameDigits = lastName.chars();
 
-            if (firstNameDigits.anyMatch(Character::isDigit)
-                    || lastNameDigits.anyMatch(Character::isDigit)) {
-                throw new ValidationException(
-                        "The name cannot contain digits\n"
-                );
-            }
-        };
+                if (firstNameDigits.anyMatch(Character::isDigit)
+                        || lastNameDigits.anyMatch(Character::isDigit)) {
+                    throw new ValidationException(
+                            "The name cannot contain digits\n"
+                    );
+                }
+            };
 
-        Validator<User> combinedValidator =
-                userValidator.andThen(nameNoDigitsValidator);
+            Validator<User> combinedValidator = userValidator.andThen(nameNoDigitsValidator);
 
-        FriendshipValidator friendshipValidator =
-                new FriendshipValidator();
+            FriendshipValidator friendshipValidator = new FriendshipValidator();
 
-        RepositoryFactory factory = new RepositoryFactory();
+            RepositoryFactory factory = new RepositoryFactory();
 
-        Repository<Long, User> userRepository =
-                factory.createUserRepository(combinedValidator);
+            Repository<Long, User> userRepository =
+                    factory.createUserRepository(combinedValidator);
 
-        UserSearchDemo.demonstrateSearchCriteria(userRepository);
+            UserSearchDemo.demonstrateSearchCriteria(userRepository);
 
-        Repository<Tuple<Long, Long>, Friendship> friendshipRepository =
-                factory.createFriendshipRepository(friendshipValidator);
+            Repository<Tuple<Long, Long>, Friendship> friendshipRepository =
+                    factory.createFriendshipRepository(friendshipValidator);
 
-        UserService userService = new UserService(userRepository);
+            UserService userService = new UserService(userRepository);
 
-        FriendshipService friendshipService =
-                new FriendshipService(
-                        friendshipRepository,
-                        userService,
-                        friendshipValidator
-                );
+            FriendshipService friendshipService =
+                    new FriendshipService(
+                            friendshipRepository,
+                            userService,
+                            friendshipValidator
+                    );
 
-        CommunityService communityService =
-                new CommunityService(userService, friendshipService);
+            CommunityService communityService =
+                    new CommunityService(userService, friendshipService);
 
-        ConsoleUI ui = new ConsoleUI(
-                userService,
-                friendshipService,
-                communityService
-        );
+            ConsoleUI ui = new ConsoleUI(
+                    userService,
+                    friendshipService,
+                    communityService,
+                    factory.getRepositoryType()
+            );
 
-        ui.run();
+            ui.run();
+        }catch(RepositoryException e){
+            System.out.println("Persistence error:" + e.getMessage());
+        }
     }
 }

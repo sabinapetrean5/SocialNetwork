@@ -1,4 +1,8 @@
+.gradle/
+build/
 .idea/
-*.iml
 out/
+*.iml
 *.class
+
+/src/main/resources/config.properties

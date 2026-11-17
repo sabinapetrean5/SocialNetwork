@@ -76,6 +76,7 @@ public interface Repository<ID, E extends Entity<ID>> {
      *
      * @param id the identifier to delete
      * @throws IllegalArgumentException if {@code id} is {@code null}
+     * @return the deleted entity, or null if it does not exist
      */
-    void delete(ID id);
+    E delete(ID id);
 }

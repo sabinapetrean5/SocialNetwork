@@ -3,6 +3,7 @@ package ui;
 
 import domain.User;
 import exceptions.RepositoryException;
+import repository.factory.RepositoryType;
 import service.CommunityService;
 import service.FriendshipService;
 import service.UserService;
@@ -22,6 +23,7 @@ public class ConsoleUI {
     private final FriendshipService friendshipService;
     private final CommunityService communityService;
     private final Scanner scanner;
+    private final RepositoryType repositoryType;
 
     /**
      * Creates the console UI.
@@ -29,15 +31,18 @@ public class ConsoleUI {
      * @param userService service for user operations
      * @param friendshipService service for friendship operations
      * @param communityService service for community operations
+     * @param repositoryType configured persistence type
      */
     public ConsoleUI(
             UserService userService,
             FriendshipService friendshipService,
-            CommunityService communityService) {
+            CommunityService communityService,
+            RepositoryType repositoryType) {
 
         this.userService = userService;
         this.friendshipService = friendshipService;
         this.communityService = communityService;
+        this.repositoryType = java.util.Objects.requireNonNull(repositoryType, "Repository type cannot be null.");
         this.scanner = new Scanner(System.in);
     }
 
@@ -154,10 +159,12 @@ public class ConsoleUI {
      * Reads user information from the console and adds a new user.
      */
     private void addUser() {
-        System.out.print("User ID: ");
-        Long id = Long.parseLong(
-                scanner.nextLine().trim()
-        );
+        Long id = null;
+
+        if (repositoryType != RepositoryType.DATABASE) {
+            System.out.print("User ID: ");
+            id = Long.parseLong(scanner.nextLine().trim());
+        }
 
         System.out.print("First name: ");
         String firstName = scanner.nextLine().trim();
@@ -165,14 +172,14 @@ public class ConsoleUI {
         System.out.print("Last name: ");
         String lastName = scanner.nextLine().trim();
 
-        if (userService.addUser(firstName, lastName, id)) {
-            System.out.println(
-                    "User added successfully."
-            );
+        if (repositoryType == RepositoryType.DATABASE) {
+            User createdUser = userService.addUser(firstName, lastName);
+            System.out.println("User added successfully. Generated ID: "
+                    + createdUser.getId());
+        } else if (userService.addUser(firstName, lastName, id)) {
+            System.out.println("User added successfully.");
         } else {
-            System.out.println(
-                    "A user with this ID already exists."
-            );
+            System.out.println("A user with this ID already exists.");
         }
     }
 

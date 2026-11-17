@@ -92,12 +92,12 @@ public class InMemoryRepository<ID, E extends Entity<ID>>
      * {@inheritDoc}
      */
     @Override
-    public void delete(ID id) {
+    public E delete(ID id) {
         if (id == null) {
             throw new IllegalArgumentException("ID cannot be null.");
         }
 
-        entities.remove(id);
+        return entities.remove(id);
     }
 
     /**
